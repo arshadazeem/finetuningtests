@@ -1,0 +1,12 @@
+.env
+pyenv.cfg
+.venv
+bin/
+include/
+lib/
+lib64/
+.vscode/
+__pycache__/
+saved_checkpoints/
+fine_tuned_tinyllama/
+*.pt
