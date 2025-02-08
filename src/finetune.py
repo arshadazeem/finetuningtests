@@ -3,8 +3,8 @@ from datasets import load_dataset
 import torch
 from transformers import Trainer, TrainingArguments
 
-model_name = "TinyLlama/TinyLlama_v1.1" #"TinyLlama/TinyLlama-1.1B-Chat-v1.0"  
-#model_name = "microsoft/phi-1_5"
+model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  
+#model_name = "microsoft/phi-1_5", "TinyLlama/TinyLlama_v1.1"
 
 model = AutoModelForCausalLM.from_pretrained(model_name)  
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -25,8 +25,6 @@ def tokenize_function(example):
     inputs["labels"] = inputs["input_ids"].copy()  # Set labels equal to input_ids
     return inputs
 
-   # return tokenizer(example["text"], truncation=True, padding="max_length", max_length=512)
-
 # Apply tokenization
 tokenized_dataset = dataset.map(tokenize_function, batched=True)
 
@@ -41,7 +39,7 @@ def train():
 
     training_args = TrainingArguments(
         output_dir="./saved_checkpoints",
-        num_train_epochs=1,           # Number of epochs
+        num_train_epochs=2,           # Number of epochs
         per_device_train_batch_size=1, # Batch size per device
         gradient_accumulation_steps=1, # For larger batch sizes
         evaluation_strategy="epoch",   # Evaluate every epoch
@@ -50,9 +48,10 @@ def train():
         logging_steps=100,             # Log every 100 steps
         #load_best_model_at_end=True,   # Load the best model after training
         save_total_limit=1,            # Save only the latest 2 checkpoints
-        fp16=False,                        # Avoid mixed precision (requires higher GPU memory)
+        fp16=False,                 # Avoid mixed precision (requires higher GPU memory)
+        max_steps=-1,                      
         dataloader_num_workers=1,          # Reduce number of workers to lower CPU load
-        per_device_eval_batch_size=4,      # Same batch size for evaluation
+        per_device_eval_batch_size=2,      # Same batch size for evaluation
         report_to="none",                  # Avoid using any tracking (if you are not using WandB)
     )
 
